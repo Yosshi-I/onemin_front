@@ -3,6 +3,7 @@ import 'package:onemin_front/pages/show_history.dart'; //追加：show_history�
 import 'package:onemin_front/pages/schedule_creation_screen.dart';
 import 'package:onemin_front/pages/measurement_start_screen.dart';
 import 'package:onemin_front/pages/notification_timer_page.dart';
+import 'package:onemin_front/pages/measurement_running_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +12,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -166,6 +166,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Text('Go to schedule_creation_screen'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to a new screen when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MeasurementPage(
+                      selected_time_e: TimeOfDay(hour: 1, minute: 30),
+                      selected_time_s: TimeOfDay(hour: 0, minute: 0),
+                      selected_title: "テスト用予定名",
+                    ),
+                  ), // start.dartに class StartPage extend なんちゃら… として実装されている場合の例
+                );
+              },
+              child: const Text('Go to measurement_running_screen'),
             ),
           ],
         ),
