@@ -3,6 +3,7 @@ import 'package:onemin_front/pages/show_history.dart'; //追加：show_history�
 import 'package:onemin_front/pages/schedule_creation_screen.dart';
 import 'package:onemin_front/pages/measurement_start_screen.dart';
 import 'package:onemin_front/pages/notification_timer_page.dart';
+import 'package:onemin_front/pages/measurement_running_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,10 +17,24 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+        // This is the theme of your application.
+        //
+        // TRY THIS: Try running your application with "flutter run". You'll see
+        // the application has a purple toolbar. Then, without quitting the app,
+        // try changing the seedColor in the colorScheme below to Colors.green
+        // and then invoke "hot reload" (save your changes or press the "hot
+        // reload" button in a Flutter-supported IDE, or press "r" if you used
+        // the command line to start the app).
+        //
+        // Notice that the counter didn't reset back to zero; the application
+        // state is not lost during the reload. To reset the state, use hot
+        // restart instead.
+        //
+        // This works for code too, not just values: Most code changes can be
+        // tested with just a hot reload.
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MeasurementStartScreen(),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -151,6 +166,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Text('Go to schedule_creation_screen'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to a new screen when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MeasurementPage(
+                      selected_time_e: TimeOfDay(hour: 1, minute: 30),
+                      selected_time_s: TimeOfDay(hour: 0, minute: 0),
+                      selected_title: "テスト用予定名",
+                    ),
+                  ), // start.dartに class StartPage extend なんちゃら… として実装されている場合の例
+                );
+              },
+              child: const Text('Go to measurement_running_screen'),
             ),
           ],
         ),
