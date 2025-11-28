@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'schedule_creation_screen.dart';
-import 'main.dart'; // Scheduleクラスをインポート
-import 'package:shared_preferences/shared_preferences.dart';
+import '../models/schedule.dart'; // Scheduleクラスをインポート
 
 class MeasurementStartScreen extends StatefulWidget {
   const MeasurementStartScreen({super.key});
@@ -26,13 +25,19 @@ class _MeasurementStartScreenState extends State<MeasurementStartScreen> {
   Future<void> _loadSchedules() async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getStringList('schedules') ?? [];
-    final loaded = stored.map((encoded) {
-      final data = jsonDecode(encoded) as Map<String, dynamic>;
-      return _scheduleFromMap(data);
+    final schedules = stored.map((encoded) {
+      final decoded = jsonDecode(encoded) as Map<String, dynamic>;
+      return _scheduleFromMap(decoded);
     }).toList();
     setState(() {
-      _schedules = loaded;
+      _schedules = schedules;
     });
+  }
+
+  Future<void> _saveSchedules(List<Schedule> schedules) async {
+    final prefs = await SharedPreferences.getInstance();
+    final encoded = schedules.map((schedule) => jsonEncode(_scheduleToMap(schedule))).toList();
+    await prefs.setStringList('schedules', encoded);
   }
 
   // スケジュール作成画面に遷移し、新しいスケジュールを受け取るメソッド
@@ -44,68 +49,77 @@ class _MeasurementStartScreenState extends State<MeasurementStartScreen> {
     );
 
     // データが返ってきた場合、Scheduleオブジェクトを生成してリストに追加
-    //if (result != null) {
-    //final newSchedule = Schedule(
-    //    title: result['title'],
-    //    startTime: result['startTime'],
-    //    endTime: result['endTime'],
-    //  );
-    //  setState(() {
-    //    _schedules.add(newSchedule);
-    //  });
-    //}
-    
     if (result != null) {
-      final prefs = await SharedPreferences.getInstance();
       final newSchedule = Schedule(
         title: result['title'] as String,
-        startTime: result['startTime'] as TimeOfDay,
-        endTime: result['endTime'] as TimeOfDay,
+        duration: result['duration'] as Duration,
       );
-
-      final stored = prefs.getStringList('schedules') ?? [];
-      stored.add(jsonEncode(_scheduleToMap(newSchedule)));
-      await prefs.setStringList('schedules', stored);
-
       setState(() {
         _schedules = [..._schedules, newSchedule];
       });
+      await _saveSchedules(_schedules);
     }
+  }
+
+  Future<void> _deleteSchedule(int index) async {
+    setState(() {
+      _schedules = List.of(_schedules)..removeAt(index);
+    });
+    await _saveSchedules(_schedules);
   }
 
   Map<String, dynamic> _scheduleToMap(Schedule schedule) {
     return {
       'title': schedule.title,
-      'startHour': schedule.startTime.hour,
-      'startMinute': schedule.startTime.minute,
-      'endHour': schedule.endTime.hour,
-      'endMinute': schedule.endTime.minute,
+      'durationMinutes': schedule.duration.inMinutes,
     };
   }
 
-  Schedule _scheduleFromMap(Map<String, dynamic> data) {
-    final startHour = data['startHour'] as int;
-    final startMinute = data['startMinute'] as int;
-    final endHour = data['endHour'] as int;
-    final endMinute = data['endMinute'] as int;
+  Schedule _scheduleFromMap(Map<String, dynamic> map) {
+    if (map.containsKey('durationMinutes')) {
+      return Schedule(
+        title: map['title'] as String,
+        duration: Duration(minutes: (map['durationMinutes'] as num).toInt()),
+      );
+    }
+
+    final startHour = (map['startHour'] as num).toInt();
+    final startMinute = (map['startMinute'] as num).toInt();
+    final endHour = (map['endHour'] as num).toInt();
+    final endMinute = (map['endMinute'] as num).toInt();
+    final startTotal = startHour * 60 + startMinute;
+    final endTotal = endHour * 60 + endMinute;
+    var diff = endTotal - startTotal;
+    if (diff <= 0) {
+      diff += 24 * 60;
+    }
+
     return Schedule(
-      title: data['title'] as String,
-      startTime: TimeOfDay(hour: startHour, minute: startMinute),
-      endTime: TimeOfDay(hour: endHour, minute: endMinute),
+      title: map['title'] as String,
+      duration: Duration(minutes: diff),
     );
   }
-  
-  
-  
 
-
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    final parts = <String>[];
+    if (hours > 0) {
+      parts.add('$hours時間');
+    }
+    if (minutes > 0) {
+      parts.add('$minutes分');
+    }
+    if (parts.isEmpty) {
+      parts.add('0分');
+    }
+    return parts.join(' ');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('測定開始'),
-      ),
+      appBar: AppBar(title: const Text('測定開始')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -132,14 +146,15 @@ class _MeasurementStartScreenState extends State<MeasurementStartScreen> {
                 itemCount: _schedules.length,
                 itemBuilder: (context, index) {
                   final schedule = _schedules[index];
-                  // 時刻を見やすいようにフォーマット
-                  final startTime = schedule.startTime.format(context);
-                  final endTime = schedule.endTime.format(context);
+                  final durationText = _formatDuration(schedule.duration);
                   return Card(
                     child: ListTile(
                       title: Text(schedule.title),
-                      // サブタイトルに開始・終了時刻を表示
-                      subtitle: Text('開始: $startTime - 終了: $endTime'),
+                      subtitle: Text('所要時間: $durationText'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => _deleteSchedule(index),
+                      ),
                     ),
                   );
                 },
@@ -158,4 +173,3 @@ class _MeasurementStartScreenState extends State<MeasurementStartScreen> {
     );
   }
 }
-
