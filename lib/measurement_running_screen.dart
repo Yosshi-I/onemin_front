@@ -5,16 +5,14 @@ import 'dart:math';
 //計測スタート画面から時刻とタイトルの情報を持ってくる
 class MeasurementPage extends StatefulWidget {
   //時計の描画に必要な定数
-  final String selected_title;
-  final TimeOfDay selected_time_s;
-  final TimeOfDay selected_time_e;
+  final String selectedTitle;
+  final Duration duration;
 
   const MeasurementPage({
     Key? key,
-    required this.selected_title,
-    required this.selected_time_s,
-    required this.selected_time_e,
-  }):super(key: key);
+    required this.selectedTitle,
+    required this.duration,
+  }) : super(key: key);
 
   @override
   State<MeasurementPage> createState() => _MeasurementPageState();
@@ -51,54 +49,29 @@ class ClockHand extends StatelessWidget {
 }
 
 
-class _MeasurementPageState extends State<MeasurementPage> { 
-  late DateTime startTimeS;
-  late DateTime startTimeE;
-  late int limit;
-  late int overtime;
-
-//Timerで表示するコメントを切り替える
+class _MeasurementPageState extends State<MeasurementPage> {
   late Timer timer;
-    int remaining = 0;
-    int overTime = 0;
-    double angle = 0.0;
+  late int remaining;
+  double angle = 0.0;
 
   //時間超過前のテキストを設定
   String displayText = "予定終了まで：あと";
   Color displayColor = Colors.black;
 
-  //String selected_title = "通学準備";
-  //Duration duration Duration(minutes: 5, seconds: 10);
-
   @override
-  void initState(){
-   super.initState();
-
-   final now = DateTime.now();
-   startTimeS = DateTime(now.year, now.month, now.day,
-      widget.selected_time_s.hour, widget.selected_time_s.minute);
-   startTimeE = DateTime(now.year, now.month, now.day,
-      widget.selected_time_e.hour, widget.selected_time_e.minute);
-
-    // `difference`メソッドを使用して時間差を計算
-   Duration diff = startTimeE.difference(startTimeS);
-   limit = diff.inSeconds;
-
-   remaining = limit;
-    //制限時間が過ぎたら文字を切り替える
-   timer = Timer.periodic(Duration(seconds: 1), (t){
-      setState((){
-        remaining --;
+  void initState() {
+    super.initState();
+    remaining = widget.duration.inSeconds;
+    timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      setState(() {
+        remaining--;
         //60分の1周づつ回転
         angle += pi / 30;
-      });
-
-      if (remaining <= 0){
-        setState((){
+        if (remaining <= 0) {
           displayText = "超過時間";
-          displayColor = Colors.red; 
-        });
-      }
+          displayColor = Colors.red;
+        }
+      });
     });
   }
 
@@ -122,7 +95,7 @@ class _MeasurementPageState extends State<MeasurementPage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(widget.selected_title),
+        title: Text(widget.selectedTitle),
         automaticallyImplyLeading: false, // 戻るボタンを非表示にする
       ),
       body: Padding(
