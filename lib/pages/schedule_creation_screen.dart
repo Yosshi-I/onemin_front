@@ -22,7 +22,10 @@ class _ScheduleCreationScreenState extends State<ScheduleCreationScreen> {
   }
 
   // タイムピッカーを表示して時刻を選択させる関数
-  Future<void> _selectTime(BuildContext context, {required bool isStart}) async {
+  Future<void> _selectTime(
+    BuildContext context, {
+    required bool isStart,
+  }) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -52,9 +55,9 @@ class _ScheduleCreationScreenState extends State<ScheduleCreationScreen> {
     if (_formKey.currentState!.validate()) {
       // 開始・終了時刻が選択されているかチェック
       if (_startTime == null || _endTime == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('開始時刻と終了時刻を選択してください')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('開始時刻と終了時刻を選択してください')));
         return; // 処理を中断
       }
       // タイトル、開始時刻、終了時刻をMap形式で前の画面に返す
@@ -69,9 +72,7 @@ class _ScheduleCreationScreenState extends State<ScheduleCreationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('スケジュール作成'),
-      ),
+      appBar: AppBar(title: const Text('スケジュール作成')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -110,13 +111,10 @@ class _ScheduleCreationScreenState extends State<ScheduleCreationScreen> {
                 trailing: const Icon(Icons.access_time),
                 onTap: () => _selectTime(context, isStart: false),
               ),
-              // --- ここまで追加 ---
 
+              // --- ここまで追加 ---
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('保存'),
-              ),
+              ElevatedButton(onPressed: _submitForm, child: const Text('保存')),
             ],
           ),
         ),
@@ -124,4 +122,3 @@ class _ScheduleCreationScreenState extends State<ScheduleCreationScreen> {
     );
   }
 }
-
