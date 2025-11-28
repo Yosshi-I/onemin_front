@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:onemin_front/pages/show_history.dart'; //追加：show_historyへのパス
+import 'package:onemin_front/pages/schedule_creation_screen.dart';
+import 'package:onemin_front/pages/measurement_start_screen.dart';
+import 'package:onemin_front/pages/notification_timer_page.dart';
+import 'package:onemin_front/pages/measurement_running_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -8,7 +12,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -124,6 +127,60 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
               child: const Text('Go to show_history'),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to a new screen when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotificationTimerPage(),
+                  ), // start.dartに class StartPage extend なんちゃら… として実装されている場合の例
+                );
+              },
+              child: const Text('Go to Start'),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to a new screen when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MeasurementStartScreen(),
+                  ), // start.dartに class StartPage extend なんちゃら… として実装されている場合の例
+                );
+              },
+              child: const Text('Go to measurement_start_screen'),
+            ),
+
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to a new screen when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ScheduleCreationScreen(),
+                  ), // start.dartに class StartPage extend なんちゃら… として実装されている場合の例
+                );
+              },
+              child: const Text('Go to schedule_creation_screen'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to a new screen when the button is pressed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MeasurementPage(
+                      selectedTitle: "テスト用予定名",
+                      duration: Duration(hours: 1, minutes: 30),
+                    ),
+                  ), // start.dartに class StartPage extend なんちゃら… として実装されている場合の例
+                );
+              },
+              child: const Text('Go to measurement_running_screen'),
             ),
           ],
         ),

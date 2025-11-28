@@ -139,7 +139,7 @@ class _ShowHistoryPageState extends State<ShowHistoryPage> {
           ),
         ),
         flexibleSpace: Image.asset(
-          'images/alarm_edited.jpg',
+          '../../assets/alarm_edited.jpg',
           fit: BoxFit.cover,
         ),
       ),
